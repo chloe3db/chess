@@ -13,9 +13,9 @@
 
         @font-face {
             font-family: 'Chomsky';
-            src: url('./chomsky (1)/Chomsky.woff2') format('woff2'),
-                url('./chomsky (1)/Chomsky.woff') format('woff'),
-                url('./chomsky (1)/Chomsky.otf') format('opentype');
+            src: url('./assets/fonts/Chomsky.woff2') format('woff2'),
+                url('./assets/fonts/Chomsky.woff') format('woff'),
+                url('./assets/fonts/Chomsky.otf') format('opentype');
             font-weight: normal;
             font-style: normal;
         }
@@ -26,7 +26,7 @@
         }
 
         body {
-            background-image: url('./chess_images/paperTexture.jpg');
+            background-image: url('./assets/images/paperTexture.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -114,7 +114,7 @@
             display: grid;
             grid-template-columns: repeat(8, var(--square-size));
             grid-template-rows: repeat(8, var(--square-size));
-            background-image: url('./chess_images/chessboard2.png');
+            background-image: url('./assets/images/chessboard2.png');
             background-size: calc(var(--square-size) * 8 * var(--board-scale)) calc(var(--square-size) * 8 * var(--board-scale));
             background-position: center center;
             background-repeat: no-repeat;
@@ -215,7 +215,7 @@
 </head>
 
 <body>
-    <img src="./chess_images/digital_chess_set_title.png" alt="Digital Chess Set" class="page-title-image">
+    <img src="./assets/images/digital_chess_set_title.png" alt="Digital Chess Set" class="page-title-image">
     <div class="chess-container">
         <div class="game-area">
 
@@ -252,21 +252,21 @@
 
     <script>
         (function () {
-            const boardImageUrl = './chess_images/chessboard2.png';
+            const boardImageUrl = './assets/images/chessboard2.png';
 
             const pieceImages = {
-                'white-king': './chess_images/whiteking.png',
-                'white-queen': './chess_images/whitequeen.png',
-                'white-rook': './chess_images/whiterook.png',
-                'white-bishop': './chess_images/whitebishop.png',
-                'white-knight': './chess_images/whiteknight.png',
-                'white-pawn': './chess_images/whitepawn.png',
-                'black-king': './chess_images/blackking.png',
-                'black-queen': './chess_images/blackqueen.png',
-                'black-rook': './chess_images/blackrook.png',
-                'black-bishop': './chess_images/blackbishop.png',
-                'black-knight': './chess_images/blackknight.png',
-                'black-pawn': './chess_images/blackpawn.png',
+                'white-king': './assets/images/whiteking.png',
+                'white-queen': './assets/images/whitequeen.png',
+                'white-rook': './assets/images/whiterook.png',
+                'white-bishop': './assets/images/whitebishop.png',
+                'white-knight': './assets/images/whiteknight.png',
+                'white-pawn': './assets/images/whitepawn.png',
+                'black-king': './assets/images/blackking.png',
+                'black-queen': './assets/images/blackqueen.png',
+                'black-rook': './assets/images/blackrook.png',
+                'black-bishop': './assets/images/blackbishop.png',
+                'black-knight': './assets/images/blackknight.png',
+                'black-pawn': './assets/images/blackpawn.png',
             };
 
             const initialBoard = [
