@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('./chomsky (1)/Chomsky.woff2') format('woff2'),
+                url('./chomsky (1)/Chomsky.woff') format('woff'),
+                url('./chomsky (1)/Chomsky.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        :root {
+            --square-size: min(6vw, 55px);
+            --board-scale: 1.05;
+        }
+
+        body {
+            background-image: url('./chess_images/paperTexture.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .page-title-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .chess-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Times New Roman', Times, serif;
+            background-color: transparent;
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .board-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: auto;
+        }
+
+        .board-inner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: auto;
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #222222;
+            width: calc(var(--square-size) * 8 * var(--board-scale));
+            text-align: center;
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .board-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            width: auto;
+        }
+
+        .captured-pieces {
+            position: relative;
+            width: calc(var(--square-size) * 2 * var(--board-scale));
+            height: calc(var(--square-size) * 2 * var(--board-scale));
+            min-height: calc(var(--square-size) * 2 * var(--board-scale));
+            align-self: flex-start;
+        }
+
+        .captured-white,
+        .captured-black {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .chessboard-wrapper {
+            position: relative;
+        }
+
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, var(--square-size));
+            grid-template-rows: repeat(8, var(--square-size));
+            background-image: url('./chess_images/chessboard2.png');
+            background-size: calc(var(--square-size) * 8 * var(--board-scale)) calc(var(--square-size) * 8 * var(--board-scale));
+            background-position: center center;
+            background-repeat: no-repeat;
+            width: calc(var(--square-size) * 8 * var(--board-scale));
+            height: calc(var(--square-size) * 8 * var(--board-scale));
+            justify-content: center;
+            align-content: center;
+            position: relative;
+        }
+
+        .square {
+            width: var(--square-size);
+            height: var(--square-size);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .piece {
+            width: calc(var(--square-size) - 10px);
+            height: calc(var(--square-size) - 10px);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: grab;
+            position: relative;
+            z-index: 10;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+            transition: transform 0.1s;
+        }
+
+        .piece:hover {
+            transform: scale(1.1);
+        }
+
+        .piece.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .captured-piece {
+            width: calc(var(--square-size) - 10px);
+            height: calc(var(--square-size) - 10px);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5));
+            transition: all 0.3s ease;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            width: calc(var(--square-size) * 8 * var(--board-scale));
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-family: 'Times New Roman', Times, serif;
+            cursor: pointer;
+            background-color: transparent;
+            color: #000000;
+            border: 2.5px solid #000000;
+            border-radius: 0;
+            font-weight: 700;
+            transition: opacity 0.15s, transform 0.08s;
+        }
+
+        button:hover {
+            opacity: 0.7;
+            transform: translateY(-1px);
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #222222;
+            min-height: 20px;
+        }
+
+
+
+        @media (max-width: 768px) {
+            :root {
+                --square-size: 50px;
+            }
+
+            .game-area {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <img src="./chess_images/digital_chess_set_title.png" alt="Digital Chess Set" class="page-title-image">
+    <div class="chess-container">
+        <div class="game-area">
+
+
+            <div class="board-section">
+                <div class="board-inner-wrapper">
+                    <div class="game-info">
+                        <span id="turn-indicator">White's Turn</span>
+                    </div>
+
+                    <div class="board-area">
+                        <div class="captured-pieces">
+                            <div class="captured-black" id="captured-black"></div>
+                        </div>
+
+                        <div class="chessboard-wrapper">
+                            <div id="chessboard" class="chessboard"></div>
+                        </div>
+
+                        <div class="captured-pieces">
+                            <div class="captured-white" id="captured-white"></div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button id="new-game">New Game</button>
+                        <button id="undo-move">Undo Move</button>
+                    </div>
+                    <div class="message" id="message" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const boardImageUrl = './chess_images/chessboard2.png';
+
+            const pieceImages = {
+                'white-king': './chess_images/whiteking.png',
+                'white-queen': './chess_images/whitequeen.png',
+                'white-rook': './chess_images/whiterook.png',
+                'white-bishop': './chess_images/whitebishop.png',
+                'white-knight': './chess_images/whiteknight.png',
+                'white-pawn': './chess_images/whitepawn.png',
+                'black-king': './chess_images/blackking.png',
+                'black-queen': './chess_images/blackqueen.png',
+                'black-rook': './chess_images/blackrook.png',
+                'black-bishop': './chess_images/blackbishop.png',
+                'black-knight': './chess_images/blackknight.png',
+                'black-pawn': './chess_images/blackpawn.png',
+            };
+
+            const initialBoard = [
+                ['black-rook', 'black-knight', 'black-bishop', 'black-queen', 'black-king', 'black-bishop', 'black-knight', 'black-rook'],
+                ['black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn', 'black-pawn'],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                [null, null, null, null, null, null, null, null],
+                ['white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn', 'white-pawn'],
+                ['white-rook', 'white-knight', 'white-bishop', 'white-queen', 'white-king', 'white-bishop', 'white-knight', 'white-rook']
+            ];
+
+            let board = JSON.parse(JSON.stringify(initialBoard));
+            let currentTurn = 'white';
+            let moveHistory = [];
+            let capturedWhite = [];
+            let capturedBlack = [];
+            let capturedWhitePositions = [];
+            let capturedBlackPositions = [];
+            let draggedPiece = null;
+            let draggedFrom = null;
+
+            const chessboardEl = document.querySelector('.chessboard');
+            chessboardEl.style.backgroundImage = `url('${boardImageUrl}')`;
+
+            document.getElementById('new-game').addEventListener('click', resetGame);
+            document.getElementById('undo-move').addEventListener('click', undoMove);
+
+            function createBoard() {
+                const chessboard = document.getElementById('chessboard');
+                chessboard.innerHTML = '';
+
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const square = document.createElement('div');
+                        square.classList.add('square');
+                        square.dataset.row = row;
+                        square.dataset.col = col;
+
+                        square.addEventListener('dragover', handleDragOver);
+                        square.addEventListener('dragleave', handleDragLeave);
+                        square.addEventListener('drop', handleDrop);
+
+                        const piece = board[row][col];
+                        if (piece) {
+                            const pieceDiv = document.createElement('div');
+                            pieceDiv.classList.add('piece');
+                            pieceDiv.style.backgroundImage = `url('${pieceImages[piece]}')`;
+                            pieceDiv.draggable = true;
+                            pieceDiv.dataset.piece = piece;
+                            pieceDiv.dataset.row = row;
+                            pieceDiv.dataset.col = col;
+                            pieceDiv.tabIndex = 0;
+                            pieceDiv.setAttribute('role', 'img');
+                            pieceDiv.setAttribute('aria-label', piece.replace('-', ' '));
+
+                            pieceDiv.addEventListener('dragstart', handleDragStart);
+                            pieceDiv.addEventListener('dragend', handleDragEnd);
+
+                            square.appendChild(pieceDiv);
+                        }
+
+                        chessboard.appendChild(square);
+                    }
+                }
+
+                updateCapturedPieces();
+            }
+
+            function handleDragStart(e) {
+                const piece = e.target.dataset.piece;
+                const pieceColor = piece.split('-')[0];
+
+                if (pieceColor !== currentTurn) {
+                    e.preventDefault();
+                    return;
+                }
+
+                draggedPiece = piece;
+                draggedFrom = {
+                    row: parseInt(e.target.dataset.row, 10),
+                    col: parseInt(e.target.dataset.col, 10)
+                };
+
+                e.target.classList.add('dragging');
+                if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+            }
+
+            function handleDragEnd(e) {
+                e.target.classList.remove('dragging');
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }
+
+            function handleDragLeave(e) {
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+
+                if (!draggedPiece || !draggedFrom) return;
+
+                const toRow = parseInt(e.currentTarget.dataset.row);
+                const toCol = parseInt(e.currentTarget.dataset.col);
+                const fromRow = draggedFrom.row;
+                const fromCol = draggedFrom.col;
+
+                if (toRow === fromRow && toCol === fromCol) {
+                    draggedPiece = null;
+                    draggedFrom = null;
+                    return;
+                }
+
+                const targetPiece = board[toRow][toCol];
+
+                if (targetPiece && targetPiece.startsWith(currentTurn)) {
+                    draggedPiece = null;
+                    draggedFrom = null;
+                    return;
+                }
+
+                moveHistory.push({
+                    from: [fromRow, fromCol],
+                    to: [toRow, toCol],
+                    piece: draggedPiece,
+                    captured: targetPiece,
+                    capturedWhite: [...capturedWhite],
+                    capturedBlack: [...capturedBlack],
+                    capturedWhitePositions: [...capturedWhitePositions],
+                    capturedBlackPositions: [...capturedBlackPositions]
+                });
+
+                if (targetPiece) {
+                    const isWhiteTarget = targetPiece.startsWith('white');
+                    const containerId = isWhiteTarget ? 'captured-white' : 'captured-black';
+                    const container = document.getElementById(containerId);
+                    const rect = container.getBoundingClientRect();
+                    const areaWidth = Math.max(1, rect.width);
+                    const areaHeight = Math.max(3, rect.height);
+
+                    let style = getComputedStyle(document.documentElement).getPropertyValue('--square-size') || '70px';
+                    if (!style.trim().endsWith('px')) {
+                        style = '70px';
+                    }
+                    const baseSize = parseFloat(style);
+                    const pieceSize = Math.max(20, baseSize - 10);
+
+                    const position = {
+                        x: Math.random() * Math.max(0, areaWidth - pieceSize),
+                        y: Math.random() * Math.max(0, areaHeight - pieceSize),
+                        angle: (Math.random() * 60) - 30
+                    };
+
+                    if (isWhiteTarget) {
+                        capturedWhite.push(targetPiece);
+                        capturedWhitePositions.push(position);
+                    } else {
+                        capturedBlack.push(targetPiece);
+                        capturedBlackPositions.push(position);
+                    }
+                }
+
+                board[toRow][toCol] = draggedPiece;
+                board[fromRow][fromCol] = null;
+
+                currentTurn = currentTurn === 'white' ? 'black' : 'white';
+                updateTurnIndicator();
+                showMessage('');
+
+                draggedPiece = null;
+                draggedFrom = null;
+                createBoard();
+            }
+
+            function updateCapturedPieces() {
+                const capturedWhiteDiv = document.getElementById('captured-white');
+                const capturedBlackDiv = document.getElementById('captured-black');
+
+                capturedWhiteDiv.innerHTML = '';
+                capturedBlackDiv.innerHTML = '';
+
+                capturedWhite.forEach((piece, index) => {
+                    const pieceDiv = document.createElement('div');
+                    pieceDiv.classList.add('captured-piece');
+                    pieceDiv.style.backgroundImage = `url('${pieceImages[piece]}')`;
+
+                    const position = capturedWhitePositions[index] || { x: 0, y: 0, angle: 0 };
+                    pieceDiv.style.left = `0px`;
+                    pieceDiv.style.top = `0px`;
+                    pieceDiv.style.transform = `translate(${position.x}px, ${position.y}px) rotate(${position.angle}deg)`;
+
+                    capturedWhiteDiv.appendChild(pieceDiv);
+                });
+
+                capturedBlack.forEach((piece, index) => {
+                    const pieceDiv = document.createElement('div');
+                    pieceDiv.classList.add('captured-piece');
+                    pieceDiv.style.backgroundImage = `url('${pieceImages[piece]}')`;
+
+                    const position = capturedBlackPositions[index] || { x: 0, y: 0, angle: 0 };
+                    const blackOffsetY = (capturedBlackDiv && capturedBlackDiv.clientHeight) ? Math.round(capturedBlackDiv.clientHeight * 3.15) : 0;
+                    pieceDiv.style.left = `0px`;
+                    pieceDiv.style.top = `0px`;
+                    pieceDiv.style.transform = `translate(${position.x}px, ${position.y + blackOffsetY}px) rotate(${position.angle}deg)`;
+
+                    capturedBlackDiv.appendChild(pieceDiv);
+                });
+            }
+
+            function updateTurnIndicator() {
+                const turnText = currentTurn.charAt(0).toUpperCase() + currentTurn.slice(1);
+                document.getElementById('turn-indicator').textContent = `${turnText}'s Turn`;
+            }
+
+            function showMessage(msg) {
+                document.getElementById('message').textContent = msg;
+                if (msg) {
+                    setTimeout(() => showMessage(''), 3000);
+                }
+            }
+
+            function resetGame() {
+                board = JSON.parse(JSON.stringify(initialBoard));
+                currentTurn = 'white';
+                moveHistory = [];
+                capturedWhite = [];
+                capturedBlack = [];
+                capturedWhitePositions = [];
+                capturedBlackPositions = [];
+                draggedPiece = null;
+                draggedFrom = null;
+                updateTurnIndicator();
+                showMessage('');
+                createBoard();
+            }
+
+            function undoMove() {
+                if (moveHistory.length === 0) return;
+
+                const lastMove = moveHistory.pop();
+                board[lastMove.from[0]][lastMove.from[1]] = lastMove.piece;
+                board[lastMove.to[0]][lastMove.to[1]] = lastMove.captured;
+
+                capturedWhite = lastMove.capturedWhite || [];
+                capturedBlack = lastMove.capturedBlack || [];
+                capturedWhitePositions = lastMove.capturedWhitePositions || [];
+                capturedBlackPositions = lastMove.capturedBlackPositions || [];
+
+                if (lastMove.previousTurn) {
+                    currentTurn = lastMove.previousTurn;
+                } else {
+                    currentTurn = currentTurn === 'white' ? 'black' : 'white';
+                }
+
+                updateTurnIndicator();
+                showMessage('Move undone');
+                createBoard();
+            }
+
+            createBoard();
+        })();
+    </script>
+</body>
+
+</html>
